@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plaquinha · Capture o amor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Allura&family=Cormorant+Garamond:wght@500;600&family=Quicksand:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<style>
+  /* ============ CONFIGURAÇÃO ============ */
+  /* Link da página de envio fica em PAGE_URL, no <script> no fim do arquivo. */
+
+  :root{
+    --ink:#3a3a36;
+    --muted:#6e6d66;
+    --sage:#8f9d6f;
+    --line:#cfd3bf;
+    --paper:#fdfcf8;
+    --s:1; /* escala: 1 = A5, 1.4142 = A4 */
+  }
+  @page{ size: A5 portrait; margin:0 }
+  body.a4{ --s:1.4142 }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:#e9e8e2;font-family:'Quicksand',sans-serif;color:var(--ink)}
+
+  .toolbar{
+    position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;
+    padding:12px 16px;background:#fff;border-bottom:1px solid #ddd;font-size:14px;
+  }
+  .toolbar button,.toolbar select{font:inherit;padding:8px 14px;border-radius:8px;border:1px solid #bbb;background:#fff;cursor:pointer}
+  .toolbar button.primary{background:var(--sage);border-color:var(--sage);color:#fff;font-weight:600}
+  .toolbar .warn{color:#b5524a;font-weight:600}
+
+  .stage{padding:24px 16px;display:flex;justify-content:center;overflow:auto}
+
+  .sheet{
+    width:calc(148mm * var(--s));height:calc(210mm * var(--s));
+    background:var(--paper);position:relative;overflow:hidden;flex:none;
+    box-shadow:0 8px 30px rgba(0,0,0,.15);
+  }
+  .frame{position:absolute;inset:calc(7mm * var(--s));border:calc(.35mm * var(--s)) solid var(--line)}
+  .inner{
+    position:absolute;inset:calc(7mm * var(--s));
+    padding:calc(12mm * var(--s)) calc(10mm * var(--s)) calc(8mm * var(--s));
+    display:flex;flex-direction:column;
+  }
+
+  .flowers{position:absolute;right:calc(-4mm * var(--s));top:calc(10mm * var(--s));height:calc(190mm * var(--s));pointer-events:none}
+
+  h1{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:calc(15mm * var(--s));letter-spacing:.03em;margin:0;text-align:center;line-height:1;padding-right:calc(14mm * var(--s))}
+  .script{font-family:'Allura',cursive;color:var(--sage);font-size:calc(17mm * var(--s));line-height:1;margin:calc(1mm * var(--s)) 0 0;text-align:center;padding-right:calc(14mm * var(--s))}
+  .lead{font-family:'Cormorant Garamond',serif;font-size:calc(6.4mm * var(--s));line-height:1.3;text-align:center;margin:calc(6mm * var(--s)) 0 0;padding-right:calc(14mm * var(--s))}
+  .rule{width:68%;height:0;border:0;border-top:calc(.35mm * var(--s)) solid var(--ink);opacity:.7;margin:calc(4mm * var(--s)) auto calc(6mm * var(--s));transform:translateX(calc(-7mm * var(--s)))}
+
+  ul{list-style:none;margin:0;padding:0 0 0 calc(6mm * var(--s))}
+  li{display:flex;align-items:center;gap:calc(4mm * var(--s));font-size:calc(4.4mm * var(--s));font-weight:500;margin:0 0 calc(3.6mm * var(--s))}
+  li svg{flex:none;width:calc(7mm * var(--s));height:calc(7mm * var(--s))}
+
+  .bottom{margin-top:auto;display:flex;align-items:center;gap:calc(5mm * var(--s));padding-right:calc(14mm * var(--s))}
+  .bottom .txt{flex:1;text-align:center;font-size:calc(4mm * var(--s));line-height:1.45;font-weight:500}
+  .bottom .txt b{display:block;color:var(--sage);font-weight:600;margin-top:calc(3mm * var(--s))}
+  .qr{flex:none;width:calc(36mm * var(--s));text-align:center}
+  .qr .code{width:calc(36mm * var(--s));height:calc(36mm * var(--s));background:#fff;padding:calc(2mm * var(--s))}
+  .qr .code svg{width:100%;height:100%;display:block}
+  .qr small{display:block;font-size:calc(2.6mm * var(--s));color:var(--muted);margin-top:calc(1.2mm * var(--s));word-break:break-all}
+
+  .monogram{font-family:'Allura',cursive;font-size:calc(10mm * var(--s));text-align:center;margin-top:calc(3mm * var(--s));line-height:1;padding-right:calc(14mm * var(--s))}
+
+  @media print{
+    body{background:none}
+    .toolbar{display:none}
+    .stage{padding:0;display:block}
+    .sheet{box-shadow:none}
+    *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <label>Tamanho:
+    <select id="size">
+      <option value="a5">A5 (14,8 × 21 cm)</option>
+      <option value="a4">A4 (21 × 29,7 cm)</option>
+    </select>
+  </label>
+  <button class="primary" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
+  <span id="warn" class="warn"></span>
+</div>
+
+<div class="stage">
+  <div class="sheet">
+    <!-- Flores do lado direito -->
+    <svg class="flowers" viewBox="0 0 60 300" aria-hidden="true">
+      <g stroke="#9aab7c" stroke-width=".8" fill="none" stroke-linecap="round">
+        <path d="M44 300 C 40 230, 46 170, 38 110 S 30 40, 34 10"/>
+        <path d="M50 300 C 52 250, 48 200, 54 150"/>
+        <path d="M38 300 C 30 260, 22 235, 14 220"/>
+        <path d="M40 160 C 32 150, 24 148, 18 140"/>
+        <path d="M38 80 C 46 74, 50 66, 52 58"/>
+      </g>
+      <g fill="#a7b78a">
+        <ellipse cx="42" cy="200" rx="5" ry="1.8" transform="rotate(-40 42 200)"/>
+        <ellipse cx="46" cy="240" rx="5" ry="1.8" transform="rotate(30 46 240)"/>
+        <ellipse cx="36" cy="130" rx="4" ry="1.5" transform="rotate(-50 36 130)"/>
+        <ellipse cx="22" cy="232" rx="4" ry="1.5" transform="rotate(20 22 232)"/>
+      </g>
+      <!-- campânulas azuis no topo -->
+      <g fill="#6f8fd6">
+        <circle cx="34" cy="12" r="3.2"/><circle cx="28" cy="20" r="3"/><circle cx="38" cy="22" r="2.8"/>
+        <circle cx="30" cy="30" r="2.6"/><circle cx="40" cy="34" r="2.4"/>
+      </g>
+      <g fill="#e07d98"><circle cx="46" cy="8" r="2.4"/><circle cx="52" cy="14" r="2"/></g>
+      <!-- flor amarela -->
+      <g fill="#f2cf5b">
+        <circle cx="52" cy="52" r="4.2"/><circle cx="46" cy="56" r="4.2"/><circle cx="54" cy="60" r="4.2"/><circle cx="47" cy="64" r="4.2"/><circle cx="52" cy="67" r="3.5"/>
+      </g>
+      <circle cx="50" cy="60" r="2.4" fill="#c9a23a"/>
+      <!-- delicadas lilás -->
+      <g fill="#b9c3ea">
+        <circle cx="18" cy="138" r="2"/><circle cx="14" cy="132" r="1.8"/><circle cx="22" cy="132" r="1.6"/><circle cx="16" cy="126" r="1.5"/>
+        <circle cx="54" cy="148" r="2"/><circle cx="58" cy="142" r="1.6"/>
+      </g>
+      <!-- flor rosa grande embaixo -->
+      <g fill="#e07d98">
+        <ellipse cx="14" cy="214" rx="7" ry="3.2" transform="rotate(-20 14 214)"/>
+        <ellipse cx="10" cy="208" rx="6" ry="2.6" transform="rotate(-70 10 208)"/>
+        <ellipse cx="20" cy="208" rx="6" ry="2.6" transform="rotate(30 20 208)"/>
+      </g>
+      <g fill="#6f8fd6">
+        <circle cx="52" cy="264" r="2.6"/><circle cx="48" cy="258" r="2.2"/><circle cx="56" cy="256" r="2"/><circle cx="50" cy="250" r="1.8"/>
+      </g>
+      <g fill="#b9c3ea"><circle cx="30" cy="282" r="2"/><circle cx="26" cy="276" r="1.7"/><circle cx="34" cy="276" r="1.7"/></g>
+    </svg>
+
+    <div class="frame"></div>
+    <div class="inner">
+      <h1>DESAFIO:</h1>
+      <p class="script">Capture o amor</p>
+      <p class="lead">Use a câmera sem medo, capture<br>o amor em segredo!</p>
+      <hr class="rule">
+
+      <ul id="list"></ul>
+
+      <div class="bottom">
+        <div class="txt">
+          Use seu olhar para encontrar momentos incríveis que talvez ninguém mais veja.
+          <b>Aponte a câmera do celular para o QR code e envie suas fotos para os noivos 💚</b>
+        </div>
+        <div class="qr">
+          <div class="code" id="qr"></div>
+          <small id="qrText"></small>
+        </div>
+      </div>
+
+      <div class="monogram">Nathalie &amp; Igor</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============ CONFIGURAÇÃO ============ */
+// Link da página de envio de fotos (o QR code aponta para cá).
+// Também dá para passar na URL: plaquinha.html?url=https://...
+const PAGE_URL = 'COLE_AQUI_O_LINK_DA_PAGINA';
+
+const CHALLENGES = [
+  'Uma foto em grupo da sua mesa',
+  'Um momento engraçado',
+  'Os noivos se beijando',
+  'Sorrisos',
+  'Alguém fazendo um brinde',
+  'Os mais velhos se divertindo',
+  'O melhor momento na pista de dança',
+  'Uma selfie engraçada',
+];
+/* ===================================== */
+
+const heart = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#8f9d6f" d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2.1 0 3.6 1.1 4.3 2.4l1 .1c.7-1.3 2.2-2.5 4.3-2.5 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z"/><path d="M8 12.2l2.6 2.6L16 9.4" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+document.getElementById('list').innerHTML = CHALLENGES.map(c => `<li>${heart}<span>${c}</span></li>`).join('');
+
+const url = new URLSearchParams(location.search).get('url') || PAGE_URL;
+if (url.startsWith('COLE_AQUI')) {
+  document.getElementById('warn').textContent = '⚠️ Configure o PAGE_URL antes de imprimir';
+}
+const qr = qrcode(0, 'M');
+qr.addData(url);
+qr.make();
+document.getElementById('qr').innerHTML = qr.createSvgTag({ cellSize: 4, margin: 0, scalable: true });
+document.getElementById('qrText').textContent = url.replace(/^https?:\/\//, '').replace(/\/$/, '');
+
+// Tamanho A5/A4
+const sizeSel = document.getElementById('size');
+const pageStyle = document.createElement('style');
+document.head.appendChild(pageStyle);
+function applySize() {
+  const a4 = sizeSel.value === 'a4';
+  document.body.classList.toggle('a4', a4);
+  pageStyle.textContent = `@page{ size: ${a4 ? 'A4' : 'A5'} portrait; margin:0 }`;
+}
+sizeSel.addEventListener('change', applySize);
+applySize();
+</script>
+</body>
+</html>
