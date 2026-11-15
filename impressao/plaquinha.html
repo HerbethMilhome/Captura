@@ -61,9 +61,8 @@
   .bottom .txt{flex:1;text-align:center;font-size:calc(4mm * var(--s));line-height:1.45;font-weight:500}
   .bottom .txt b{display:block;color:var(--sage);font-weight:600;margin-top:calc(3mm * var(--s))}
   .qr{flex:none;display:flex;flex-direction:column;align-items:center}
-  .qr .code{width:calc(32mm * var(--s));height:calc(32mm * var(--s));background:#fff;padding:calc(2mm * var(--s))}
+  .qr .code{width:calc(36mm * var(--s));height:calc(36mm * var(--s));background:#fff;padding:calc(2mm * var(--s))}
   .qr .code svg{width:100%;height:100%;display:block}
-  .qr small{display:block;font-size:calc(2.6mm * var(--s));color:var(--muted);margin-top:calc(1.2mm * var(--s));white-space:nowrap}
 
   .monogram{font-family:'Allura',cursive;font-size:calc(9mm * var(--s));text-align:center;margin-top:calc(3mm * var(--s));line-height:1}
 
@@ -107,7 +106,6 @@
         </div>
         <div class="qr">
           <div class="code" id="qr"></div>
-          <small id="qrText"></small>
         </div>
       </div>
 
@@ -145,7 +143,6 @@ const qr = qrcode(0, 'M');
 qr.addData(url);
 qr.make();
 document.getElementById('qr').innerHTML = qr.createSvgTag({ cellSize: 4, margin: 0, scalable: true });
-document.getElementById('qrText').textContent = url.replace(/^https?:\/\//, '').replace(/\/$/, '');
 
 // Tamanho A5/A4
 const sizeSel = document.getElementById('size');
